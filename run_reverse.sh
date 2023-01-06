@@ -12,20 +12,22 @@ usage() {
     echo "    -l    The file with a list of files to be reversed"
 }
 
-[[ $1 == '' ]] && usage && exit 0
+[[ $SKIP -eq 0 ]] && rm $FIN_LIST && touch $FIN_LIST
+[[ $input == '' ]] && usage && exit 0
 while getopts "hd:f:l:" argv; do
     case $argv in
         h )
             usage
             exit 0
             ;;
-
+        
         d )
             dir=$OPTARG
             [[ -d $dir ]] || (echo 'Invalid Directory' && usage && exit 1)
-            find $dir -type f | xargs -P $WORKERS -n 1 bash reverse.sh
+            list=$(find $dir -type f)
+            comm -3 <(sort $list) <(sort $FIN_LIST) | xargs -P $WORKERS -n 1 bash reverse.sh
             ;;
-            
+
         f )
             file=$OPTARG
             [[ -f $file ]] || (echo 'Invalid File' && usage && exit 1)
@@ -35,7 +37,7 @@ while getopts "hd:f:l:" argv; do
         l )
             list=$OPTARG
             [[ -f $list ]] || (echo 'Invalid File' && usage && exit 1)
-            cat $list | xargs -P $WORKERS -n 1 bash reverse.sh
+            comm -3 <(sort $list) <(sort $FIN_LIST) | xargs -P $WORKERS -n 1 bash reverse.sh
             ;;
 
         ? )

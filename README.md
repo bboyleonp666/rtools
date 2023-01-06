@@ -13,12 +13,32 @@ bash run_reverse.sh
 ```
 - config file: `reverse.conf`
 
-| Var | Desc |
-| --- | ---  |
-| LOG_DIR | directory to save logs      |
-| CFG_DIR | directory to save cfg files |
-| MODE    | debugging level             |
-| WORKERS | maximum number of processes |
-| TIMEOUT | timeout in seconds          |
+| Var | Desc | Level |
+| --- | ---  | ---   |
+| LOG_DIR  | directory to save logs         | |
+| CFG_DIR  | directory to save cfg files    | |
+| MODE     | debugging level                | debug, info, warning, error, critical |
+| WORKERS  | maximum number of processes    | |
+| TIMEOUT  | timeout in seconds             | |
+| FIN_LIST | list of finish paths           | |
+| SKIP     | skip analyzed files            | 0: do not skip, 1: skip all|
 
 - main script: `reverse_cfg.py`
+
+## Example
+### To start
+```
+# terminal 1
+bash run_reverse.sh -d mybinaries/ > run.log
+```
+### To monitor
+```
+# terminal 2
+tail -f run.log
+```
+### To terminate
+```
+# terminal 1
+<CTRL + C>
+## waiting for tasks that are still running to finish
+```
