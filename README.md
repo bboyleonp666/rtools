@@ -21,7 +21,8 @@ bash run_reverse.sh
 | WORKERS  | maximum number of processes    | |
 | TIMEOUT  | timeout in seconds             | |
 | FIN_LIST | list of finish paths           | |
-| SKIP     | skip analyzed files            | 0: do not skip, 1: skip all|
+| SKIP     | skip analyzed files            | 0) do not skip<br>1) skip all|
+| SHUFFLE  | analyze in random order        | 0) in sorted order<br>1) in random order
 
 - main script: `reverse_cfg.py`
 

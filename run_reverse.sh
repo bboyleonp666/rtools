@@ -24,8 +24,12 @@ while getopts "hd:f:l:" argv; do
         d )
             dir=$OPTARG
             [[ -d $dir ]] || (echo 'Invalid Directory' && usage && exit 1)
-            list=$(find $dir -type f)
-            comm -3 <(sort $list) <(sort $FIN_LIST) | xargs -P $WORKERS -n 1 bash reverse.sh
+
+            if [[ $SHUFFLE -eq 1 ]]; then
+                comm -3 <(find $dir -type f | sort) <(sort $FIN_LIST) | shuf | xargs -p -P $WORKERS -n 1 bash reverse.sh
+            else
+                comm -3 <(find $dir -type f | sort) <(sort $FIN_LIST) | xargs -P $WORKERS -n 1 bash reverse.sh
+            fi
             ;;
 
         f )
@@ -37,7 +41,12 @@ while getopts "hd:f:l:" argv; do
         l )
             list=$OPTARG
             [[ -f $list ]] || (echo 'Invalid File' && usage && exit 1)
-            comm -3 <(sort $list) <(sort $FIN_LIST) | xargs -P $WORKERS -n 1 bash reverse.sh
+
+            if [[ $SHUFFLE -eq 1 ]]; then
+                comm -3 <(sort $list) <(sort $FIN_LIST) | shuf | xargs -P $WORKERS -n 1 bash reverse.sh
+            else
+                comm -3 <(sort $list) <(sort $FIN_LIST) | xargs -P $WORKERS -n 1 bash reverse.sh
+            fi
             ;;
 
         ? )

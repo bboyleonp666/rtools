@@ -21,5 +21,4 @@ START $fpath
 timeout --kill-after=5s "$TIMEOUT"s \
     python reverse_cfg.py -f $fpath -m $MODE -o $CFG_DIR 2> "logs/$(basename $fpath).log" \
     && echo $fpath >> $FIN_LIST
-
 FINISH $fpath
