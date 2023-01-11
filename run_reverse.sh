@@ -14,6 +14,7 @@ usage() {
 
 [[ $SKIP -eq 0 ]] && rm $FIN_LIST && touch $FIN_LIST
 [[ $input == '' ]] && usage && exit 0
+[[ $(pip list | grep angr > /dev/null)$? -eq 1 ]] && echo "No module named 'angr'" && exit 1
 while getopts "hd:f:l:" argv; do
     case $argv in
         h )
