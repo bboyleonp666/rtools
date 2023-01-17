@@ -62,16 +62,16 @@ class CFGParser:
         for node in self.cfg.nodes(data=False):
             self.cfg.nodes[node]['bName'] = self.get_name(node)
             if node.block is None:
-                self.cfg.nodes[node]['x'] = [self.get_addr(node), 'nop']
+                self.cfg.nodes[node]['x'] = [[self.get_addr(node), 'nop']]
             
             else:
                 try:
                     disasm = str(node.block.disassembly)
-                    self.cfg.nodes[node]['x'] = self.parse_asm(node.block.disassembly) if disasm else [self.get_addr(node), 'nop']
+                    self.cfg.nodes[node]['x'] = self.parse_asm(node.block.disassembly) if disasm else [[self.get_addr(node), 'nop']]
 
                 except KeyError:
                     # some error that I have no clue how to deal with
-                    self.cfg.nodes[node]['x'] = [self.get_addr(node), 'nop']
+                    self.cfg.nodes[node]['x'] = [[self.get_addr(node), 'nop']]
 
         mapping = {node: i for i, node in enumerate(self.cfg.nodes(data=False))}
         return nx.relabel_nodes(self.cfg, mapping)
@@ -114,7 +114,8 @@ def main():
     cfg = parser.parse(args.mode)
     
     os.makedirs(args.output_dir, exist_ok=True)
-    with open(os.path.join(args.output_dir, os.path.basename(args.file_path)), 'wb') as f:
+    dump_path = os.path.join(args.output_dir, os.path.basename(args.file_path)) + '.pickle'
+    with open(dump_path, 'wb') as f:
         pickle.dump(cfg, f)
 
 
