@@ -100,7 +100,7 @@ def parse_args():
                         help='path to the binary file')
     parser.add_argument('-m', '--mode', type=str, required=False, default='warning',
                         metavar='debug | info | warning | error | critical', 
-                        help='path to the binary file')
+                        help='level of the logging message, detailed <--> brief')
     parser.add_argument('-o', '--output-dir', type=str, required=False, default='CFGs', metavar='<directory>', 
                         help='directory to save the extracted CFG files')
     args = parser.parse_args()
