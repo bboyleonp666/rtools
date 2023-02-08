@@ -12,6 +12,7 @@ usage() {
     echo "    -l    The file with a list of files to be reversed"
 }
 
+touch $FIN_LIST
 [[ $SKIP -eq 0 ]] && rm $FIN_LIST && touch $FIN_LIST
 [[ $input == '' ]] && usage && exit 0
 [[ $(pip list | grep angr > /dev/null)$? -eq 1 ]] && echo "No module named 'angr'" && exit 1
@@ -27,16 +28,16 @@ while getopts "hd:f:l:" argv; do
             [[ -d $dir ]] || (echo 'Invalid Directory' && usage && exit 1)
 
             if [[ $SHUFFLE -eq 1 ]]; then
-                comm -3 <(find $dir -type f | sort) <(sort $FIN_LIST) | shuf | xargs -p -P $WORKERS -n 1 bash reverse.sh
+                comm -3 <(find $dir -type f | sort) <(sort $FIN_LIST) | shuf | xargs -P $WORKERS -n 1 bash $RUN_SCRIPT
             else
-                comm -3 <(find $dir -type f | sort) <(sort $FIN_LIST) | xargs -P $WORKERS -n 1 bash reverse.sh
+                comm -3 <(find $dir -type f | sort) <(sort $FIN_LIST) | xargs -P $WORKERS -n 1 bash $RUN_SCRIPT
             fi
             ;;
 
         f )
             file=$OPTARG
             [[ -f $file ]] || (echo 'Invalid File' && usage && exit 1)
-            bash reverse.sh $file
+            bash $RUN_SCRIPT $file
             ;;
 
         l )
@@ -44,9 +45,9 @@ while getopts "hd:f:l:" argv; do
             [[ -f $list ]] || (echo 'Invalid File' && usage && exit 1)
 
             if [[ $SHUFFLE -eq 1 ]]; then
-                comm -3 <(sort $list) <(sort $FIN_LIST) | shuf | xargs -P $WORKERS -n 1 bash reverse.sh
+                comm -3 <(sort $list) <(sort $FIN_LIST) | shuf | xargs -P $WORKERS -n 1 bash $RUN_SCRIPT
             else
-                comm -3 <(sort $list) <(sort $FIN_LIST) | xargs -P $WORKERS -n 1 bash reverse.sh
+                comm -3 <(sort $list) <(sort $FIN_LIST) | xargs -P $WORKERS -n 1 bash $RUN_SCRIPT
             fi
             ;;
 
