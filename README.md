@@ -64,9 +64,21 @@
     | ---         | ---  | ---    |
     | MAIN_SCRIPT | location to the main summarizing script                | |
     | RUN_SCRIPT  | location to the run script which calls the main script | |
-    | METHOD      | summarizing method to be proceeded                     | summary, opcode_blocks |
+    | METHOD      | summarizing method to be proceeded                     | summary, sequences, opcode_blocks |
     | SAVE_DIR    | directory to save the extracted summary                | |
     | WORKERS     | maximum number of processes                            | |
+
+- methods: `summary/summerize.py`
+    - summary: Get summary of one binary including
+        - file name
+        - number of nodes
+        - lengths of each node
+        - unigram counts
+        - bigram counts
+        - trigram counts
+    - sequences: Generate opcode sequences pairs
+        - default ngram argument: 10
+    - opcode_blocks: fundamental method, to parser opcode of each block
 
 - example
     1. start run

@@ -73,9 +73,29 @@ def summarize(path):
     return summary
 
 
+def generate_sequences(path, ngram=10):
+    parser = GraphParser()
+    opc_blocks = parser.get_opcode_blocks(path)
+
+    sequences = []
+    for blk in opc_blocks:
+        if len(blk) == 1:
+            continue
+            
+        elif len(blk) > ngram:
+            ngram_seq = ngram_iterator(blk, ngram=ngram)
+            for _ngram_seq in list(zip(ngram_seq[:-1], ngram_seq[1:])):
+                sequences.append(_ngram_seq)
+                
+        else:
+            sequences.append((blk[:-1], blk[1:]))
+    
+    return sequences
+
+
 def parse_args():
     parser = argparse.ArgumentParser(description='Opcode Block Summarizing Script')
-    parser.add_argument('--method', type=str, required=True, metavar='[summary | opcode_blocks]',
+    parser.add_argument('--method', type=str, required=True, metavar='[summary | sequences | opcode_blocks]',
                         help='information to obtain')
     parser.add_argument('-f', '--file-path', type=str, required=True,  metavar='<path>', 
                         help='path to the graph pickle file')
@@ -83,7 +103,7 @@ def parse_args():
                         help='path to the directory to put the opcode blocks')
     args = parser.parse_args()
 
-    METHODS = ['summary', 'opcode_blocks']
+    METHODS = ['summary', 'sequences', 'opcode_blocks']
     assert args.method in METHODS, 'Method not support'
 
     return args
@@ -98,8 +118,13 @@ def main():
     if args.method == 'summary':
         summary = summarize(args.file_path)
         write_pickle(summary, save_path)
+    
+    elif args.method == 'sequences':
+        sequences = generate_sequences(args.file_path)
+        write_pickle(sequences, save_path)
 
     elif args.method == 'opcode_blocks':
+        parser = GraphParser()
         opc_blocks = parser.get_opcode_blocks(args.file_path)
         write_pickle(opc_blocks, save_path)
         
