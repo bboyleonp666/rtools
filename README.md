@@ -1,4 +1,4 @@
-# Angr auto reversing
+# Angr reversing tool
 ## Reverse
 - main control script: `run_reverse.sh`
 - usage
@@ -13,7 +13,7 @@
     #     -l    The file with a list of files to be reversed
     ```
 
-- config file: `reverse.conf`
+- configuration: `reverse.conf`
 
     | Var         | Desc | Option |
     | ---         | ---  | ---    |
@@ -58,7 +58,7 @@
     #     -l    The file with a list of files to be summarized
     ```
 
-- config file: `summarize.conf`
+- configuration: `summarize.conf`
 
     | Var         | Desc | Option |
     | ---         | ---  | ---    |
@@ -77,7 +77,13 @@
         - bigram counts
         - trigram counts
     - sequences: Generate opcode sequences pairs
-        - default ngram argument: 10
+        - To set these variables, type `export BPTT=<number>` in shell.
+
+        | Var         | Desc                             | Option |
+        | ---         | ---                              | ---    |
+        | BPTT        | Back Propagation Through Time    | \<number>, default: 10 |
+        | DROP_NO_FIT | drop blocks with length less than BPTT | True, False      |
+
     - opcode_blocks: fundamental method, to parser opcode of each block
 
 - example

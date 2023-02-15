@@ -73,21 +73,23 @@ def summarize(path):
     return summary
 
 
-def generate_sequences(path, ngram=10):
+def generate_sequences(path):
+    bptt = int(os.environ.get('BPTT', '10'))
+    drop_no_fit = os.environ.get('DROP_NO_FIT', 'True')
+
     parser = GraphParser()
     opc_blocks = parser.get_opcode_blocks(path)
-
     sequences = []
     for blk in opc_blocks:
         if len(blk) == 1:
             continue
-            
-        elif len(blk) > ngram:
-            ngram_seq = ngram_iterator(blk, ngram=ngram)
+        
+        elif len(blk) > bptt:
+            ngram_seq = ngram_iterator(blk, ngram=bptt)
             for _ngram_seq in list(zip(ngram_seq[:-1], ngram_seq[1:])):
                 sequences.append(_ngram_seq)
                 
-        else:
+        elif drop_no_fit == 'False':
             sequences.append((blk[:-1], blk[1:]))
     
     return sequences
