@@ -1,34 +1,12 @@
 import os
+import sys
 import argparse
 import networkx as nx
 
-from utils.Basics import *
-from utils.Tools import *
+import torch
+from torchnlp.encoders.text import pad_tensor
 
-
-class GraphParser:
-    def __init__(self):
-        pass
-    
-    
-    def split_disasm(self, disasm):
-        """For x86 Only"""
-        _asm = disasm.split(', ')
-        _opc = _asm[0].split(' ', 1)
-        _ret = _opc + [_asm[1]] if len(_asm)==2 else _opc
-        return _ret
-    
-
-    def get_opcode_blocks(self, fpath, concat=None):
-        G = read_pickle(fpath)
-
-        blocks = []
-        for opcodes in nx.get_node_attributes(G, 'x').values():
-            asm = [self.split_disasm(disasm)[0] for _, disasm in opcodes]
-            if concat is not None:
-                asm = concat.join(asm)
-            blocks.append(asm)
-        return blocks
+from Basics import *
 
 
 def summarize(path):
@@ -73,31 +51,9 @@ def summarize(path):
     return summary
 
 
-def generate_sequences(path):
-    bptt = int(os.environ.get('BPTT', '10'))
-    drop_no_fit = os.environ.get('DROP_NO_FIT', 'True')
-
-    parser = GraphParser()
-    opc_blocks = parser.get_opcode_blocks(path)
-    sequences = []
-    for blk in opc_blocks:
-        if len(blk) == 1:
-            continue
-        
-        elif len(blk) > bptt:
-            ngram_seq = ngram_iterator(blk, ngram=bptt)
-            for _ngram_seq in list(zip(ngram_seq[:-1], ngram_seq[1:])):
-                sequences.append(_ngram_seq)
-                
-        elif drop_no_fit == 'False':
-            sequences.append((blk[:-1], blk[1:]))
-    
-    return sequences
-
-
 def parse_args():
     parser = argparse.ArgumentParser(description='Opcode Block Summarizing Script')
-    parser.add_argument('--method', type=str, required=True, metavar='[summary | sequences | opcode_blocks]',
+    parser.add_argument('--method', type=str, required=True, metavar='[summary | opcode_blocks]',
                         help='information to obtain')
     parser.add_argument('-f', '--file-path', type=str, required=True,  metavar='<path>', 
                         help='path to the graph pickle file')
@@ -105,7 +61,7 @@ def parse_args():
                         help='path to the directory to put the opcode blocks')
     args = parser.parse_args()
 
-    METHODS = ['summary', 'sequences', 'opcode_blocks']
+    METHODS = ['summary', 'opcode_blocks']
     assert args.method in METHODS, 'Method not support'
 
     return args
@@ -120,16 +76,12 @@ def main():
     if args.method == 'summary':
         summary = summarize(args.file_path)
         write_pickle(summary, save_path)
-    
-    elif args.method == 'sequences':
-        sequences = generate_sequences(args.file_path)
-        write_pickle(sequences, save_path)
 
     elif args.method == 'opcode_blocks':
         parser = GraphParser()
         opc_blocks = parser.get_opcode_blocks(args.file_path)
         write_pickle(opc_blocks, save_path)
-        
+
 
 if __name__=='__main__':
     main()
