@@ -12,9 +12,9 @@ usage() {
     echo "    -l    The file with a list of files to be reversed"
 }
 
-touch $FIN_LIST
-[[ $SKIP -eq 0 ]] && rm $FIN_LIST && touch $FIN_LIST
 [[ $input == '' ]] && usage && exit 0
+
+[[ $SKIP -eq 0 ]] && [[ -f $FIN_LIST ]] && rm $FIN_LIST && touch $FIN_LIST
 [[ $(pip list | grep angr > /dev/null)$? -eq 1 ]] && echo "No module named 'angr'" && exit 1
 while getopts "hd:f:l:" argv; do
     case $argv in
