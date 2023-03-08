@@ -12,12 +12,14 @@ import os
 import sys
 from datetime import datetime
 import argparse
+import enum
+
 
 # TIMEOUT = 180
 
 def timer(func):
     from time import time
-    
+
     def wrapper(*arg, **kwargs):
         start = time()
         result = func(*arg, **kwargs)
@@ -27,29 +29,39 @@ def timer(func):
     return wrapper
 
 
+class CFGType(enum.Enum):
+    STATIC = 'static'
+    EMULATED = 'emulated'
+
+
 class CFGParser:
-    def __init__(self, path):
+    def __init__(self, path, cfg_type):
         self.path = path
         self.name = os.path.basename(path)
-    
+        self.cfgType = cfg_type
+
     def parse(self, mode='warning'):
         logger = logging.getLogger('angr')
         logger.setLevel(mode.upper())
-        
+
         self.print_info('Create Project')
         self.create_project()
-        self.print_info('Start Emulation')
-        self.emulated()
+        if self.cfgType == CFGType.EMULATED:
+            self.print_info('Start Emulation')
+            self.emulated()
+        if self.cfgType == CFGType.STATIC:
+            self.print_info('Start Static')
+            self.fast()
         self.print_info('Adjust CFG')
         G = self.adjust_cfg()
 
         self.print_info('Completed')
 
         return G
-    
+
     def print_info(self, info):
         print('[INFO] [{}] | {}'.format(datetime.now(), info), file=sys.stderr)
-    
+
     def create_project(self):
         self.p = Project(self.path, load_options={'auto_load_libs': False})
 
@@ -57,17 +69,23 @@ class CFGParser:
         cfg = self.p.analyses.CFGEmulated(keep_state=True)
         cfg.normalize()
         self.cfg = cfg.graph
-        
+
+    def fast(self):
+        cfg = self.p.analyses.CFGFast()
+        cfg.normalize()
+        self.cfg = cfg.graph
+
     def adjust_cfg(self):
         for node in self.cfg.nodes(data=False):
             self.cfg.nodes[node]['bName'] = self.get_name(node)
             if node.block is None:
                 self.cfg.nodes[node]['x'] = [[self.get_addr(node), 'nop']]
-            
+
             else:
                 try:
                     disasm = str(node.block.disassembly)
-                    self.cfg.nodes[node]['x'] = self.parse_asm(node.block.disassembly) if disasm else [[self.get_addr(node), 'nop']]
+                    self.cfg.nodes[node]['x'] = self.parse_asm(node.block.disassembly) if disasm else [
+                        [self.get_addr(node), 'nop']]
 
                 except KeyError:
                     # some error that I have no clue how to deal with
@@ -83,7 +101,7 @@ class CFGParser:
     def get_addr(self, CFGNode_obj):
         string = str(CFGNode_obj)
         return string.replace('>', '').split()[-1]
-    
+
     def parse_asm(self, disasm):
         parsed = []
         disasm = str(disasm)
@@ -96,13 +114,15 @@ class CFGParser:
 
 def parse_args():
     parser = argparse.ArgumentParser(description='P4 Mininet Topology Generator')
-    parser.add_argument('-f', '--file-path', type=str, required=True, metavar='<path>', 
+    parser.add_argument('-f', '--file-path', type=str, required=True, metavar='<path>',
                         help='path to the binary file')
     parser.add_argument('-m', '--mode', type=str, required=False, default='warning',
-                        metavar='debug | info | warning | error | critical', 
+                        metavar='debug | info | warning | error | critical',
                         help='level of the logging message, detailed <--> brief')
-    parser.add_argument('-o', '--output-dir', type=str, required=False, default='CFGs', metavar='<directory>', 
+    parser.add_argument('-o', '--output-dir', type=str, required=False, default='CFGs', metavar='<directory>',
                         help='directory to save the extracted CFG files')
+    parser.add_argument('-t', '--cfg-type', type=str, required=False, default='emulated', metavar='static | emulated',
+                        help='type of the CFG')
     args = parser.parse_args()
 
     return args
@@ -110,14 +130,14 @@ def parse_args():
 
 def main():
     args = parse_args()
-    parser = CFGParser(args.file_path)
+    parser = CFGParser(args.file_path, CFGType(args.cfg_type))
     cfg = parser.parse(args.mode)
-    
+
     os.makedirs(args.output_dir, exist_ok=True)
     dump_path = os.path.join(args.output_dir, os.path.basename(args.file_path)) + '.pickle'
     with open(dump_path, 'wb') as f:
         pickle.dump(cfg, f)
 
 
-if __name__=='__main__':
+if __name__ == '__main__':
     main()
