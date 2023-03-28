@@ -3,9 +3,6 @@ import sys
 import argparse
 import networkx as nx
 
-import torch
-from torchnlp.encoders.text import pad_tensor
-
 from Basics import *
 
 
