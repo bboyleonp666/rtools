@@ -25,7 +25,7 @@ while getopts "ho:d:f:l:" argv; do
         d )
             dir=$OPTARG
             [[ -d $dir ]] || (echo 'Invalid Directory' && usage && exit 1)
-            find $dir -type f -name *.pickle | xargs -P $WORKERS -n 1 bash $RUN_SCRIPT
+            find $dir -type f -name '*.pickle' | xargs -P $WORKERS -n 1 bash $RUN_SCRIPT
             ;;
 
         f )

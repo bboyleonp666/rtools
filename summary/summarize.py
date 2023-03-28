@@ -12,7 +12,8 @@ def summarize(path):
     
     # opcode block list
     parser = GraphParser()
-    opc_blocks = parser.get_opcode_blocks(path)
+    opc_blocks, G = parser.get_opcode_blocks(path, return_graph=True)
+    is_tree = int(nx.is_tree(G))
 
     # number of nodes
     num_nodes = len(opc_blocks)
@@ -39,6 +40,7 @@ def summarize(path):
         trigram = merge_dict(trigram, compute_frequency(obj=_tri))
 
     summary = {'name': name, 
+               'is_tree': is_tree, 
                'num_nodes': num_nodes, 
                'block_lengths': block_lengths, 
                'unigram': unigram, 

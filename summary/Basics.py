@@ -22,7 +22,7 @@ class GraphParser:
         _ret = _opc + [_asm[1]] if len(_asm)==2 else _opc
         return _ret
 
-    def get_opcode_blocks(self, fpath, concat=None):
+    def get_opcode_blocks(self, fpath, concat=None, return_graph=False):
         G = read_pickle(fpath)
 
         blocks = []
@@ -31,7 +31,11 @@ class GraphParser:
             if concat is not None:
                 asm = concat.join(asm)
             blocks.append(asm)
-        return blocks
+
+        if return_graph:
+            return blocks, G
+        else:
+            return blocks
 
 def compute_frequency(obj):
     return_dict = dict()
