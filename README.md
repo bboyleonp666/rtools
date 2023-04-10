@@ -17,16 +17,25 @@
 
     | Var         | Desc | Option |
     | ---         | ---  | ---    |
-    | MAIN_SCRIPT | location to the main reversing script |                                   |
-    | RUN_SCRIPT  | location to the run script            |                                   |
-    | LOG_DIR     | directory to save logs                |                                   |
-    | CFG_DIR     | directory to save cfg files           |                                   |
-    | MODE        | debugging level                | debug, info, warning, error, critical    |
-    | WORKERS     | maximum number of processes    |                                          |
-    | TIMEOUT     | timeout in seconds             |                                          |
-    | FIN_LIST    | list of finish paths           |                                          |
-    | SKIP        | skip analyzed files            | 0) do not skip<br>1) skip all            |
-    | SHUFFLE     | analyze in random order        | 0) in sorted order<br>1) in random order |
+    | MAIN_SCRIPT | location to the main reversing script |                                          |
+    | LOG_DIR     | directory to save logs                |                                          |
+    | CFG_DIR     | directory to save cfg files           |                                          |
+    | MODE        | debugging level                       | debug, info, warning, error, critical    |
+    | WORKERS     | maximum number of processes           |                                          |
+    | TIMEOUT     | timeout in seconds                    |                                          |
+    | STATE_LIST  | list of finish paths and their states |                                          |
+    | SKIP        | skip analyzed files                   | 0) do not skip<br>1) skip all            |
+    | SHUFFLE     | analyze in random order               | 0) in sorted order<br>1) in random order |
+
+- state: `STATE_LIST`
+    - format: `<file path>,<state>`
+
+        | State | Desc |
+        | ---   | ---  |
+        | 0     | Killed (SIGKILL), only when Timeout failed |
+        | 1     | Error while reversing                      |
+        | 124   | Timeout (SIGTERM)                          |
+        | 200   | Success                                    |
 
 - example
     1. start run
@@ -63,7 +72,6 @@
     | Var         | Desc | Option |
     | ---         | ---  | ---    |
     | MAIN_SCRIPT | location to the main summarizing script                | |
-    | RUN_SCRIPT  | location to the run script which calls the main script | |
     | METHOD      | summarizing method to be proceeded                     | summary, sequences, opcode_blocks |
     | SAVE_DIR    | directory to save the extracted summary                | |
     | WORKERS     | maximum number of processes                            | |
