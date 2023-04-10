@@ -1,7 +1,6 @@
 #!/bin/bash
 
 source reverse.conf
-input=$1
 
 usage() {
     echo "Run the script with"
@@ -12,10 +11,45 @@ usage() {
     echo "    -l    The file with a list of files to be reversed"
 }
 
-[[ $input == '' ]] && usage && exit 0
+rev_run() {
+    fname=$(basename $1)
+    echo "[RUN] [$(date '+%Y%m%d-%H%M%S.%N')] | FILE: $fname"
+}
 
-[[ $SKIP -eq 0 ]] && [[ -f $FIN_LIST ]] && rm $FIN_LIST && touch $FIN_LIST
+rev_fin() {
+    fname=$(basename $1)
+    echo "[FIN] [$(date '+%Y%m%d-%H%M%S.%N')] | FILE: $fname"
+}
+
+reverse() {
+    source reverse.conf
+    [[ $1 == '' ]] && echo 'File Path not provided' && exit 1
+    fpath=$1
+
+    rev_run $fpath
+
+    # main section
+    timeout --kill-after=5s "$TIMEOUT"s \
+        python $MAIN_SCRIPT -f $fpath -m $MODE -o $CFG_DIR 2> "$LOG_DIR/$(basename $fpath).log"
+    echo "$fpath,$?" >> $STATE_LIST  # $? records the state after reversing (fail or success)
+
+    rev_fin $fpath
+}
+
+
+[[ $1 == '' ]] && usage && exit 0
+mkdir -p $CFG_DIR
+mkdir -p $LOG_DIR
+
+[[ $SKIP -eq 0 ]] && [[ -f $STATE_LIST ]] && rm $STATE_LIST
+touch $STATE_LIST
 [[ $(pip list | grep angr > /dev/null)$? -eq 1 ]] && echo "No module named 'angr'" && exit 1
+
+input=$1
+export -f reverse
+export -f rev_run
+export -f rev_fin
+
 while getopts "hd:f:l:" argv; do
     case $argv in
         h )
@@ -28,16 +62,18 @@ while getopts "hd:f:l:" argv; do
             [[ -d $dir ]] || (echo 'Invalid Directory' && usage && exit 1)
 
             if [[ $SHUFFLE -eq 1 ]]; then
-                comm -3 <(find $dir -type f | sort) <(sort $FIN_LIST) | shuf | xargs -P $WORKERS -n 1 bash $RUN_SCRIPT
+                comm -3 <(find $dir -type f | sort) <(sort $STATE_LIST) | shuf | \
+                    xargs -P $WORKERS -I {} bash -c "reverse {}"
             else
-                comm -3 <(find $dir -type f | sort) <(sort $FIN_LIST) | xargs -P $WORKERS -n 1 bash $RUN_SCRIPT
+                comm -3 <(find $dir -type f | sort) <(sort $STATE_LIST) | \
+                    xargs -P $WORKERS -I {} bash -c "reverse {}"
             fi
             ;;
 
         f )
             file=$OPTARG
             [[ -f $file ]] || (echo 'Invalid File' && usage && exit 1)
-            bash $RUN_SCRIPT $file
+            bash -c "reverse $file"
             ;;
 
         l )
@@ -45,9 +81,11 @@ while getopts "hd:f:l:" argv; do
             [[ -f $list ]] || (echo 'Invalid File' && usage && exit 1)
 
             if [[ $SHUFFLE -eq 1 ]]; then
-                comm -3 <(sort $list) <(sort $FIN_LIST) | shuf | xargs -P $WORKERS -n 1 bash $RUN_SCRIPT
+                comm -3 <(sort $list) <(sort $STATE_LIST) | shuf | \
+                    xargs -P $WORKERS -I {} bash -c "reverse {}"
             else
-                comm -3 <(sort $list) <(sort $FIN_LIST) | xargs -P $WORKERS -n 1 bash $RUN_SCRIPT
+                comm -3 <(sort $list) <(sort $STATE_LIST) | \
+                    xargs -P $WORKERS -I {} bash -c "reverse {}"
             fi
             ;;
 

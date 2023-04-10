@@ -121,3 +121,4 @@ def main():
 
 if __name__=='__main__':
     main()
+    sys.exit(200)  # the default exit code is set to 200
