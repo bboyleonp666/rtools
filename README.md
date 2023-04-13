@@ -6,8 +6,9 @@
     $ bash run_reverse.sh
 
     # Run the script with
-    #   $ bash run_reverse.sh [-d <directory>] [-f <file>] [-l <file>]
+    #   $ bash run_reverse.sh [-h] [-d <directory>] [-f <file>] [-l <file>]
 
+    #     -h    Show help
     #     -d    The directory with binaries to be reversed
     #     -f    The file to be reversed
     #     -l    The file with a list of files to be reversed
@@ -32,10 +33,10 @@
 
         | State | Desc |
         | ---   | ---  |
-        | 0     | Killed (SIGKILL), only when Timeout failed |
+        | 0     | Success                                    |
         | 1     | Error while reversing                      |
         | 124   | Timeout (SIGTERM)                          |
-        | 200   | Success                                    |
+        | 137   | Killed (SIGKILL), only when Timeout failed |
 
 - example
     1. start run

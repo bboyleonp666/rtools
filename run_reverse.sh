@@ -62,10 +62,10 @@ while getopts "hd:f:l:" argv; do
             [[ -d $dir ]] || (echo 'Invalid Directory' && usage && exit 1)
 
             if [[ $SHUFFLE -eq 1 ]]; then
-                comm -3 <(find $dir -type f | sort) <(sort $STATE_LIST) | shuf | \
+                comm -3 <(find $dir -type f | sort) <(cat $STATE_LIST | cut -d ',' -f 1 | sort) | shuf | \
                     xargs -P $WORKERS -I {} bash -c "reverse {}"
             else
-                comm -3 <(find $dir -type f | sort) <(sort $STATE_LIST) | \
+                comm -3 <(find $dir -type f | sort) <(cat $STATE_LIST | cut -d ',' -f 1 | sort) | \
                     xargs -P $WORKERS -I {} bash -c "reverse {}"
             fi
             ;;
@@ -81,10 +81,10 @@ while getopts "hd:f:l:" argv; do
             [[ -f $list ]] || (echo 'Invalid File' && usage && exit 1)
 
             if [[ $SHUFFLE -eq 1 ]]; then
-                comm -3 <(sort $list) <(sort $STATE_LIST) | shuf | \
+                comm -3 <(sort $list) <(cat $STATE_LIST | cut -d ',' -f 1 | sort) | shuf | \
                     xargs -P $WORKERS -I {} bash -c "reverse {}"
             else
-                comm -3 <(sort $list) <(sort $STATE_LIST) | \
+                comm -3 <(sort $list) <(cat $STATE_LIST | cut -d ',' -f 1 | sort) | \
                     xargs -P $WORKERS -I {} bash -c "reverse {}"
             fi
             ;;
