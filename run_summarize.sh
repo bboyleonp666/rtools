@@ -66,7 +66,7 @@ while getopts "ho:d:f:l:" argv; do
         l )
             list=$OPTARG
             [[ -f $list ]] || (echo 'Invalid File' && usage && exit 1)
-            cat $list | xargs -P $WORKERS -n 1 bash -c "summarize {}"
+            cat $list | xargs -P $WORKERS -I {} bash -c "summarize {}"
             ;;
 
         ? )

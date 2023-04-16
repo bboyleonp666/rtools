@@ -2,3 +2,5 @@ CFGs/
 logs/
 lists/
 extracted/
+*.ipynb_checkpoints/
+*__pycache__/
