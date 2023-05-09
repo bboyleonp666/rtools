@@ -95,7 +95,7 @@ class CFGParser:
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(description='P4 Mininet Topology Generator')
+    parser = argparse.ArgumentParser(description='CFGParser')
     parser.add_argument('-f', '--file-path', type=str, required=True, metavar='<path>', 
                         help='path to the binary file')
     parser.add_argument('-m', '--mode', type=str, required=False, default='warning',
