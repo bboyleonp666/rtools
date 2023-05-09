@@ -37,13 +37,14 @@ reverse() {
 }
 
 
+[[ $(pip list | grep angr > /dev/null)$? -eq 1 ]] && echo "No module named 'angr'" && exit 1
+
 [[ $1 == '' ]] && usage && exit 0
 mkdir -p $CFG_DIR
 mkdir -p $LOG_DIR
 
 [[ $SKIP -eq 0 ]] && [[ -f $STATE_LIST ]] && rm $STATE_LIST
 touch $STATE_LIST
-[[ $(pip list | grep angr > /dev/null)$? -eq 1 ]] && echo "No module named 'angr'" && exit 1
 
 input=$1
 export -f reverse
